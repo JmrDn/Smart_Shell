@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "845321193820",
+    "firebase_url": "https://smartshell-c0840-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "smartshell-c0840",
+    "storage_bucket": "smartshell-c0840.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845321193820:android:64a1b4b957bf96efee9999",
+        "android_client_info": {
+          "package_name": "com.example.smartshell"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoPTa1o50tr4ScAnP6kOPZDJ7-b9VvhpY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

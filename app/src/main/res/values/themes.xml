@@ -1,0 +1,16 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.SmartShell" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.SmartShell" parent="Base.Theme.SmartShell" />
+
+    <style name="DrawerItemTextAppearance" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:fontFamily">@font/calibriregular</item> <!-- Replace with your desired font -->
+        <item name="android:textSize">16sp</item> <!-- Optional: Customize the text size -->
+        <item name="android:textColor">@color/black</item> <!-- Optional: Customize the text color -->
+    </style>
+
+</resources>
