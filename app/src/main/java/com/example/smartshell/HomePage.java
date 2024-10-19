@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.example.smartshell.Utils.UserCredentials;
 import com.example.smartshell.fragments.HarvestFragment;
+import com.example.smartshell.fragments.HistoryFragment;
 import com.example.smartshell.fragments.HomeFragment;
 import com.example.smartshell.fragments.ProfileFragment;
 import com.example.smartshell.fragments.UsersFragment;
@@ -144,6 +145,16 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
                 }
             }, 300);
             selectedFragment = new HarvestFragment();
+        }
+        else if (itemId == R.id.history){
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+
+                }
+            }, 300);
+            selectedFragment = new HistoryFragment();
         }
         else if (itemId == R.id.users){
             new Handler().postDelayed(new Runnable() {

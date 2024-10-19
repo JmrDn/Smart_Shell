@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.smartshell.Utils.DateAndTimeUtils;
 import com.example.smartshell.Utils.UserCredentials;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -258,7 +259,7 @@ public class Signup extends AppCompatActivity {
         users.put("email", email);
         users.put("name", name);
         users.put("password", password);
-        users.put("dateCreated", LocalDateTime.now().toString());
+        users.put("dateCreated", DateAndTimeUtils.getTime24HrsFormatAndDate());
         users.put("userId", userId);
         users.put("isBlocked", false);
 

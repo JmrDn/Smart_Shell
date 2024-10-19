@@ -5,7 +5,9 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -20,6 +22,16 @@ public class DateAndTimeUtils {
 
         // Format the date to another format if needed
         return localDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
+
+    }
+
+    public static String convertLocalDateAndTimeString(String date){
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy H:mm:s");
+        LocalDateTime localDate = LocalDateTime.parse(date, formatter);
+
+        // Format the date to another format if needed
+        return localDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy h:mm a"));
 
     }
 
@@ -152,6 +164,14 @@ public class DateAndTimeUtils {
         long remainingDays = ChronoUnit.DAYS.between(today, targetDate);
 
         return remainingDays;
+    }
+
+    public static long calculateMinutesAgo(LocalDateTime yourDate) {
+        LocalDateTime now = LocalDateTime.now();
+        Duration duration = Duration.between(yourDate, now);
+
+        long minutes = duration.toMinutes();
+        return  minutes;
     }
 
 

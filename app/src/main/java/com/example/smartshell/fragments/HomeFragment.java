@@ -4,6 +4,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
@@ -19,15 +20,31 @@ import com.example.smartshell.Utils.DateAndTimeUtils;
 import com.example.smartshell.Utils.HarvestUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 
 
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class HomeFragment extends Fragment {
 
-    TextView harvestDate, numOfDays, days;
+    TextView harvestDate;
+    TextView numOfDays;
+    TextView  days;
+    TextView currentTime;
+    TextView currentWaterSalinity;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -37,8 +54,101 @@ public class HomeFragment extends Fragment {
         initWidgets(view);
         setUpDate();
         setUpUpcomingHarvestDate();
+        setUpCurrentSalinityDetails();
 
         return  view;
+    }
+
+    private void setUpCurrentSalinityDetails() {
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference("Readings");
+
+        db.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String currentSalinityFromDb = snapshot.child("Water").getValue().toString();
+                currentWaterSalinity.setText(currentSalinityFromDb);
+                setHistory(currentSalinityFromDb);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d("TAG", "Failed to fetch current water salinity");
+            }
+        });
+    }
+
+    private void setHistory(String currentSalinityFromDb) {
+
+        HashMap<String, Object> history = new HashMap();
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy H:mm:s");
+        String currentDateAndTime = now.format(dateTimeFormatter);
+
+        history.put("waterSalinity", currentSalinityFromDb);
+        history.put("dateAndTime", currentDateAndTime);
+
+        validateHistory(history);
+    }
+
+    private void validateHistory(HashMap<String, Object> history) {
+
+        FirebaseFirestore.getInstance().collection("history")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()){
+                            QuerySnapshot querySnapshot = task.getResult();
+                            if(!querySnapshot.isEmpty() && querySnapshot != null){
+                                long recentHistoryTimeRange = 99999;
+                                String recentWaterSalinity = "";
+                                int querySize = querySnapshot.size();
+                                int queries = 0;
+                                for (QueryDocumentSnapshot documentSnapshot: task.getResult()){
+                                    String dateAndTime = documentSnapshot.getString("dateAndTime");
+                                    queries++;
+                                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy H:m:s");
+                                    LocalDateTime dateTime = LocalDateTime.parse(dateAndTime, dateTimeFormatter);
+                                    long fetchedHistoryTimeRange = DateAndTimeUtils.calculateMinutesAgo(dateTime);
+
+                                    if(fetchedHistoryTimeRange < recentHistoryTimeRange){
+                                        String waterSalinityFromHistory = documentSnapshot.getString("waterSalinity");
+                                        if (!history.get("waterSalinity").equals(waterSalinityFromHistory)){
+                                            recentWaterSalinity = waterSalinityFromHistory;
+                                        }
+                                    }
+                                }
+
+                                if (queries == querySize){
+                                    if(!recentWaterSalinity.isEmpty() && recentWaterSalinity != null){
+                                        saveHistory(history);
+                                    }
+                                }
+                            } else {
+                                Log.d("TAG", "Query snapshot of history is null");
+                                saveHistory(history);
+                            }
+                        } else {
+                            Log.d("TAG", "Fetching history is failed");
+                        }
+                    }
+                });
+
+    }
+
+    private void saveHistory(HashMap<String, Object> history) {
+        FirebaseFirestore.getInstance().collection("history")
+                .add(history)
+                .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentReference> task) {
+                        if (task.isSuccessful()){
+                            Log.d("TAG", "New water salinity history added");
+                        } else {
+                            Log.d("TAG", "Failed to add water salinity history");
+                        }
+                    }
+                });
     }
 
     private void setUpUpcomingHarvestDate() {
@@ -99,5 +209,8 @@ public class HomeFragment extends Fragment {
         numOfDays = view.findViewById(R.id.numOfDays_TextView);
         days = view.findViewById(R.id.days_TextView);
         harvestDate = view.findViewById(R.id.dateOfHarvest_TextView);
+
+        currentTime = view.findViewById(R.id.timeOfWaterSalinity_TextView);
+        currentWaterSalinity = view.findViewById(R.id.waterSalinity_TextView);
     }
 }
