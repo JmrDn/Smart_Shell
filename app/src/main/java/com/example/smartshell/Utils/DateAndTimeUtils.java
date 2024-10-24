@@ -35,7 +35,7 @@ public class DateAndTimeUtils {
 
     }
 
-    public String getTimeWithAMAndPM(){
+    public static String getTimeWithAMAndPM(){
       return new SimpleDateFormat("h:mm a", Locale.getDefault()).format(new Date());
     }
     public static String getDateWithWordFormat(){

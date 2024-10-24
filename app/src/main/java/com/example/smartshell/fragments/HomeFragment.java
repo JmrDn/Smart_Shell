@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,9 +33,15 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -45,6 +52,9 @@ public class HomeFragment extends Fragment {
     TextView  days;
     TextView currentTime;
     TextView currentWaterSalinity;
+    private Handler handler = new Handler();
+    private Runnable runnable;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -56,9 +66,23 @@ public class HomeFragment extends Fragment {
         setUpUpcomingHarvestDate();
         setUpCurrentSalinityDetails();
 
+
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                updateTime();
+
+                handler.postDelayed(this, 60000);
+            }
+        };
+        handler.post(runnable);
         return  view;
     }
 
+    private void updateTime() {
+
+        currentTime.setText("As of " + DateAndTimeUtils.getTimeWithAMAndPM());
+    }
     private void setUpCurrentSalinityDetails() {
         DatabaseReference db = FirebaseDatabase.getInstance().getReference("Readings");
 
@@ -71,7 +95,7 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onCancelled( @NonNull DatabaseError error) {
                 Log.d("TAG", "Failed to fetch current water salinity");
             }
         });
@@ -189,6 +213,7 @@ public class HomeFragment extends Fragment {
 
     private void setUpDate() {
         harvestDate.setText(HarvestUtils.date);
+        currentTime.setText(DateAndTimeUtils.getTimeWithAMAndPM());
         numOfDays.setText(String.valueOf(HarvestUtils.remainingDays));
         if (HarvestUtils.remainingDays > 1){
             days.setText("DAYS");

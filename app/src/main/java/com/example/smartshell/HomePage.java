@@ -37,6 +37,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     private final  String value = "Home";
     private MenuItem usersItem;
     TextView userTypeTV;
+    boolean isHome;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     private void setUpDefaultNavigation() {
         Fragment selectedFragment = null;
         if (value.equals("Home")){
+            isHome = true;
             selectedFragment = new HomeFragment();
         }
 
@@ -123,7 +125,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
                 }
             }, 300);
-
+            isHome = true;
             selectedFragment = new HomeFragment();
         }
         else if (itemId == R.id.profile){
@@ -134,6 +136,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
                 }
             }, 300);
+            isHome = false;
             selectedFragment = new ProfileFragment();
         }
         else if (itemId == R.id.harvest){
@@ -144,6 +147,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
                 }
             }, 300);
+            isHome = false;
             selectedFragment = new HarvestFragment();
         }
         else if (itemId == R.id.history){
@@ -154,6 +158,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
                 }
             }, 300);
+            isHome = false;
             selectedFragment = new HistoryFragment();
         }
         else if (itemId == R.id.users){
@@ -164,6 +169,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
                 }
             }, 300);
+            isHome = false;
             selectedFragment = new UsersFragment();
         }
         else if (itemId == R.id.logout){
@@ -178,6 +184,8 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
                 }
             }, 300);
+
+            isHome = false;
 
         }
 
@@ -196,6 +204,10 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
     @Override
     public void onBackPressed() {
+
+        if(isHome){
+            finishAffinity();
+        }
         if(drawerLayout.isDrawerOpen(GravityCompat.START))
             drawerLayout.closeDrawer(GravityCompat.START);
         else
