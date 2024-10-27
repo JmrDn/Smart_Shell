@@ -108,7 +108,10 @@ public class Login extends AppCompatActivity {
                         if (task.isSuccessful()){
                             Toast.makeText(getApplicationContext(), "Successfully login", Toast.LENGTH_LONG).show();
                             saveUsersDataToSystem(email);
-                            startActivity(new Intent(getApplicationContext(), HomePage.class));
+                            Intent intent = new Intent(getApplicationContext(), HomePage.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            finish();
                         } else {
                             Toast.makeText(getApplicationContext(), "Failed to log in " + task.getException().getMessage(), Toast.LENGTH_LONG).show();;
                             progressBar.setVisibility(View.GONE);

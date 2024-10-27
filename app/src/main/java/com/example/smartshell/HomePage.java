@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Build;
@@ -37,7 +38,9 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     private final  String value = "Home";
     private MenuItem usersItem;
     TextView userTypeTV;
-    boolean isHome;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +51,12 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         setUpUser();
         setUpAdminInterface();
         setUpDefaultNavigation();
-        Log.d("TAG", "Is home");
+
+
+
     }
+
+
 
     private void setUpUser() {
         String user = UserCredentials.userType;
@@ -75,7 +82,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     private void setUpDefaultNavigation() {
         Fragment selectedFragment = null;
         if (value.equals("Home")){
-            isHome = true;
+
             selectedFragment = new HomeFragment();
         }
 
@@ -118,65 +125,78 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         item.setChecked(true);
 
         if (itemId == R.id.home){
+
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+
                     drawerLayout.closeDrawer(GravityCompat.START);
 
                 }
             }, 300);
-            isHome = true;
+
             selectedFragment = new HomeFragment();
         }
         else if (itemId == R.id.profile){
+
             new Handler().postDelayed(new Runnable() {
+
                 @Override
                 public void run() {
+
                     drawerLayout.closeDrawer(GravityCompat.START);
 
                 }
             }, 300);
-            isHome = false;
+
             selectedFragment = new ProfileFragment();
         }
         else if (itemId == R.id.harvest){
+
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+
                     drawerLayout.closeDrawer(GravityCompat.START);
 
                 }
             }, 300);
-            isHome = false;
+
             selectedFragment = new HarvestFragment();
         }
         else if (itemId == R.id.history){
+
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+
                     drawerLayout.closeDrawer(GravityCompat.START);
 
                 }
             }, 300);
-            isHome = false;
+
             selectedFragment = new HistoryFragment();
         }
         else if (itemId == R.id.users){
+
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+
                     drawerLayout.closeDrawer(GravityCompat.START);
 
                 }
             }, 300);
-            isHome = false;
+
             selectedFragment = new UsersFragment();
         }
         else if (itemId == R.id.logout){
+
             new Handler().postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
+
                     FirebaseAuth.getInstance().signOut();
                     Toast.makeText(getApplicationContext(), "Successfully log out", Toast.LENGTH_LONG).show();
                     startActivity(new Intent(getApplicationContext(), ChooseUser.class));
@@ -185,12 +205,12 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
                 }
             }, 300);
 
-            isHome = false;
+
 
         }
 
         if (selectedFragment != null){
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, selectedFragment).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, selectedFragment).addToBackStack(null).commit();
         }
         return true;
     }
@@ -204,13 +224,32 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
     @Override
     public void onBackPressed() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
 
-        if(isHome){
+        // Debug log to see which fragment is currently active
+        Log.d("CurrentFragment", currentFragment != null ? currentFragment.getClass().getSimpleName() : "No Fragment");
+
+        // Check if the current fragment is HomeFragment
+        if (currentFragment instanceof HomeFragment) {
+            // Finish the activity, effectively exiting the app
             finishAffinity();
+        } else {
+            // Check if there are any fragments in the back stack
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                // Pop the last fragment from the back stack
+                getSupportFragmentManager().popBackStack();
+            } else {
+                // If no fragments are left in the back stack, call super to handle the default behavior
+                super.onBackPressed();
+            }
         }
-        if(drawerLayout.isDrawerOpen(GravityCompat.START))
+
+        // Close the navigation drawer if it's open
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        else
-            super.onBackPressed();
+        }
     }
+
+
+
 }

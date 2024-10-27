@@ -49,8 +49,11 @@ public class SplashScreen extends AppCompatActivity {
                                                         UserCredentials.userType = userType;
                                                         UserCredentials.email = email;
                                                         UserCredentials.name = name;
+
+                                                        Intent intent = new Intent(getApplicationContext(), HomePage.class);
+                                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                        startActivity(intent);
                                                         finish();
-                                                        startActivity(new Intent(getApplicationContext(), HomePage.class));
                                                     }
                                                 } else {
                                                     Log.d("TAG", "Email from db during fetch users data is empty");
