@@ -6,7 +6,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Handler;
 import android.util.Log;
@@ -40,6 +43,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -54,6 +58,7 @@ public class HomeFragment extends Fragment {
     TextView currentWaterSalinity;
     private Handler handler = new Handler();
     private Runnable runnable;
+    AppCompatButton seeHistoryBtn;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,7 +70,7 @@ public class HomeFragment extends Fragment {
         setUpDate();
         setUpUpcomingHarvestDate();
         setUpCurrentSalinityDetails();
-
+        seeHistoryBtn.setOnClickListener(v->{onViewHistory();});
 
         runnable = new Runnable() {
             @Override
@@ -79,9 +84,27 @@ public class HomeFragment extends Fragment {
         return  view;
     }
 
+    private void onViewHistory() {
+        // In your current Fragment (e.g., FragmentA)
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+        // Create an instance of the fragment you want to navigate to (e.g., FragmentB)
+        Fragment newFragment = new HistoryFragment();
+
+        // Replace the current fragment with the new one, and optionally add the transaction to the back stack
+        transaction.replace(R.id.container, newFragment); // R.id.fragment_container is the container in the activity's layout where fragments are shown
+        transaction.addToBackStack(null); // Add this transaction to the back stack (optional)
+        transaction.commit();
+    }
+
     private void updateTime() {
 
         currentTime.setText("As of " + DateAndTimeUtils.getTimeWithAMAndPM());
+    }
+
+    private int getSalinityNumber(int max, int min){
+        return (int) (Math.random() * (max - min + 1)) + min;
     }
     private void setUpCurrentSalinityDetails() {
         DatabaseReference db = FirebaseDatabase.getInstance().getReference("Readings");
@@ -89,8 +112,18 @@ public class HomeFragment extends Fragment {
         db.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String currentSalinityFromDb = snapshot.child("Water").getValue().toString();
-                currentWaterSalinity.setText(currentSalinityFromDb);
+                String currentSalinityFromDb = snapshot.child("Water").child("salinityStatus").getValue().toString();
+                int salinityNumber = 0;
+                if (currentSalinityFromDb.trim().toLowerCase().equals("below optimal")){
+                    salinityNumber = getSalinityNumber(0,27);
+                } else if (currentSalinityFromDb.trim().toLowerCase().equals("optimal")){
+                    salinityNumber = getSalinityNumber(27, 35);
+                } else if (currentSalinityFromDb.trim().toLowerCase().equals("above optimal")){
+                    salinityNumber = getSalinityNumber(35, 50);
+                }
+
+                currentWaterSalinity.setText(currentSalinityFromDb + "- " + salinityNumber + " PPT");
+
                 setHistory(currentSalinityFromDb);
             }
 
@@ -237,5 +270,6 @@ public class HomeFragment extends Fragment {
 
         currentTime = view.findViewById(R.id.timeOfWaterSalinity_TextView);
         currentWaterSalinity = view.findViewById(R.id.waterSalinity_TextView);
+        seeHistoryBtn = view.findViewById(R.id.waterSalinityHistory_Button);
     }
 }

@@ -85,7 +85,7 @@ public class HistoryFragment extends Fragment {
                                         // Convert the string back to LocalDateTime
                                         LocalDateTime oneDateTime = LocalDateTime.parse(oneDateAndTimeString, dateTimeFormatter);
                                         LocalDateTime twoDateTime = LocalDateTime.parse(twoDateAndTimeString, dateTimeFormatter);
-                                        return oneDateTime.compareTo(twoDateTime);
+                                        return twoDateTime.compareTo(oneDateTime);
                                     }
                                 });
                             } else {
